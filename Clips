@@ -1,0 +1,182 @@
+;;
+;;@author Daniyal Javani <Daniyal.javani@gmail.com>
+;;
+
+(deftemplate dis
+(slot name)
+(slot type)
+)
+
+(deftemplate is
+(slot name)
+(slot type)
+)
+
+(deftemplate says
+(slot from)
+(slot to)
+(slot type))
+
+(deftemplate contact
+(slot name1)
+(slot name2))
+
+(defrule has-very-high-fever 
+(dis
+(type "very high fever")
+(name ?x)
+)
+=>
+(assert (dis
+(name ?x)
+(type "high fever")
+))
+)
+
+(defrule has-fever 
+(dis
+(name ?x)
+(type "fever")
+)
+=>
+(assert (dis
+(name ?x)
+(type "high fever")
+))
+)
+
+(defrule has-whooping-cough 
+(dis (name ?x)(type "whooping cough"))
+=>
+(assert (name ?x)(dis (type "cough")))
+)
+
+(defrule has-poison-ivy 
+(dis (name ?x)(type "poison ivy"))
+=>
+(assert (name ?x)(dis (type "rash")))
+)
+
+(defrule has-high-fever-and-congestion
+(dis (name ?x)(type "high fever"))
+(dis (name ?x)(type "congestion"))
+=>
+(assert (dis (type "flu")(name ?x)))
+)
+
+
+(defrule has-rash-no-high-fever
+(dis (name ?x)(type "rash"))
+( not (dis (name ?x) (type "high fever")))
+=>
+(assert (name ?x)(dis (type "poison ivy")))
+)
+
+
+(defrule has-cough-very-high-fever
+(dis (name ?x)(type "cough"))
+(dis (name ?x)(type "very high fever"))
+=>
+(assert (dis (name ?x)(type "whooping cough")))
+)
+
+(defrule has-cont
+
+(is
+(name ?y)
+(type "contagious")
+)
+
+(dis
+(name ?x)
+(type ?y)
+)
+
+(contact
+(name1 ?x)
+(name2 ?z)
+)
+
+=>
+(assert (dis (type ?y )(name ?z)))
+)
+
+(defrule has-nothing
+(dis (name ?x))
+( not (dis (type "fever")(name ?x)))
+( not (dis (type "cough")(name ?x)))
+( not (dis (type "rash")(name ?x)))
+
+=>
+(assert (dis (type "healthy")(name ?x)))
+)
+
+(defrule doctor-said
+(is
+(type "doctor")
+(name ?x)
+)
+(says 
+(from ?x)
+(to ?y)
+(type ?z)
+)
+=>
+(assert (dis (type ?z)(name ?y)))
+)
+
+(defrule some-one-said
+(says 
+(from ?x)
+(to ?y)
+(type ?z)
+)
+
+( not (dis
+(name ?y)
+(type ?z)
+)
+)
+=>
+(assert (is (type "is not doctor")(name ?x)))
+)
+
+(deffacts all
+(is
+(name "whooping cough")
+(type "contagious")
+)
+
+
+(is
+(name "grace")
+(type "doctor")
+)
+
+(says
+(from "grace") 
+(to "don")
+(type "healthy")
+)
+
+(contact
+(name1 ed)
+(name2 alice)
+)
+
+(dis
+(name ed)
+(type "cough")
+)
+
+(dis
+(name ed)
+(type "very high fever")
+)
+
+(says
+(from "max") 
+(to "alice")
+(type "poison ivy")
+
+))
